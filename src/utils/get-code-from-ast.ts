@@ -30,6 +30,7 @@ export const sortImportsInPlace = (
     const ast = parser(parsedCode);
 
     const pushedBackNodes: Node[] = [];
+    let hasIgnoredNodes = false;
     let sortedNodeIndex = 0;
     traverse(ast, {
         enter(path: NodePath) {
@@ -53,6 +54,13 @@ export const sortImportsInPlace = (
                     path.insertAfter(newLineNode);
                 }
 
+                if (hasIgnoredNodes) {
+                    hasIgnoredNodes = false;
+                    if (nodes[sortedNodeIndex - 1].trailingNewLine) {
+                        path.insertBefore(newLineNode);
+                    }
+                }
+
                 sortedNodeIndex++;
                 path.skip();
             } else {
@@ -61,6 +69,9 @@ export const sortImportsInPlace = (
                         pushedBackNodes.push(path.node);
                         pushedBackNodes.push(newLineNode);
                         path.remove();
+                    } else {
+                        hasIgnoredNodes = true;
+                        path.skip();
                     }
                 } else {
                     if (pushedBackNodes.length > 0) {
@@ -89,6 +100,6 @@ export const shouldIgnoreNode = (node: Node): boolean => {
     const lastComment = leadingComments[leadingComments.length - 1];
     return (
         lastComment.type === 'CommentLine' &&
-        lastComment.value === 'prettier-ignore'
+        lastComment.value.trim() === 'prettier-ignore'
     );
 };
