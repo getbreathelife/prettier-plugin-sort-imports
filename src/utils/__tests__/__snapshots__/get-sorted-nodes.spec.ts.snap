@@ -518,7 +518,7 @@ Array [
     "end": 53,
     "extra": undefined,
     "innerComments": null,
-    "leadingComments": null,
+    "leadingComments": Array [],
     "loc": SourceLocation {
       "end": Position {
         "column": 18,
@@ -606,16 +606,6 @@ Array [
     "start": 35,
     "trailingComments": null,
     "type": "ImportDeclaration",
-  },
-  Object {
-    "expression": Object {
-      "type": "StringLiteral",
-      "value": "PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE",
-    },
-    "innerComments": null,
-    "leadingComments": Array [],
-    "trailingComments": null,
-    "type": "ExpressionStatement",
   },
 ]
 `;
@@ -853,7 +843,7 @@ Array [
     "end": 53,
     "extra": undefined,
     "innerComments": null,
-    "leadingComments": null,
+    "leadingComments": Array [],
     "loc": SourceLocation {
       "end": Position {
         "column": 18,
@@ -941,16 +931,6 @@ Array [
     "start": 35,
     "trailingComments": null,
     "type": "ImportDeclaration",
-  },
-  Object {
-    "expression": Object {
-      "type": "StringLiteral",
-      "value": "PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE",
-    },
-    "innerComments": null,
-    "leadingComments": Array [],
-    "trailingComments": null,
-    "type": "ExpressionStatement",
   },
   Node {
     "end": 148,
@@ -1047,16 +1027,6 @@ Array [
     "trailingComments": null,
     "type": "ImportDeclaration",
   },
-  Object {
-    "expression": Object {
-      "type": "StringLiteral",
-      "value": "PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE",
-    },
-    "innerComments": null,
-    "leadingComments": Array [],
-    "trailingComments": null,
-    "type": "ExpressionStatement",
-  },
   Node {
     "end": 110,
     "extra": undefined,
@@ -1152,16 +1122,6 @@ Array [
     "trailingComments": null,
     "type": "ImportDeclaration",
   },
-  Object {
-    "expression": Object {
-      "type": "StringLiteral",
-      "value": "PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE",
-    },
-    "innerComments": null,
-    "leadingComments": Array [],
-    "trailingComments": null,
-    "type": "ExpressionStatement",
-  },
   Node {
     "end": 129,
     "extra": undefined,
@@ -1256,16 +1216,6 @@ Array [
     "start": 111,
     "trailingComments": null,
     "type": "ImportDeclaration",
-  },
-  Object {
-    "expression": Object {
-      "type": "StringLiteral",
-      "value": "PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE",
-    },
-    "innerComments": null,
-    "leadingComments": Array [],
-    "trailingComments": null,
-    "type": "ExpressionStatement",
   },
 ]
 `;

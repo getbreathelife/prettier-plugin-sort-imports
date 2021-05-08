@@ -43,7 +43,7 @@ test('it should remove nodes from the original code', () => {
     const allCommentsFromImports = getAllCommentsFromNodes(sortedNodes);
 
     const commentAndImportsToRemoveFromCode = [
-        ...sortedNodes,
+        ...sortedNodes.map((sn) => sn.node),
         ...allCommentsFromImports,
     ];
     const codeWithoutImportDeclarations = removeNodesFromOriginalCode(

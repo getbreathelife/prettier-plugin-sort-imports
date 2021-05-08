@@ -1,18 +1,12 @@
 // we do not have types for javascript-natural-sort
 //@ts-ignore
 import naturalSort from 'javascript-natural-sort';
-import { compact, isEqual, pull, clone } from 'lodash';
+import { compact, pull, clone } from 'lodash';
 
-import {
-    ImportDeclaration,
-    ExpressionStatement,
-    addComments,
-    removeComments,
-} from '@babel/types';
+import { ImportDeclaration, addComments, removeComments } from '@babel/types';
 
 import { isSimilarTextExistInArray } from './is-similar-text-in-array';
-import { PrettierOptions } from '../types';
-import { newLineNode } from '../constants';
+import { PrettierOptions, SortedNode } from '../types';
 
 /**
  * This function returns all the nodes which are in the importOrder array.
@@ -26,14 +20,17 @@ export const getSortedNodes = (
     order: PrettierOptions['importOrder'],
     importOrderSeparation: boolean,
 ) => {
+    // Extract the top and bottom comments
+    const firstNodeLeadingComments = nodes[0].leadingComments;
+    nodes[0].leadingComments = null;
+
     const originalNodes = nodes.map(clone);
-    const newLine =
-        importOrderSeparation && nodes.length > 1 ? newLineNode : null;
+    const shouldAddNewLine = importOrderSeparation && nodes.length > 1;
     const sortedNodesByImportOrder = order.reduce(
         (
-            res: (ImportDeclaration | ExpressionStatement)[],
+            res: SortedNode<ImportDeclaration>[],
             val,
-        ): (ImportDeclaration | ExpressionStatement)[] => {
+        ): SortedNode<ImportDeclaration>[] => {
             const x = originalNodes.filter(
                 (node) => node.source.value.match(new RegExp(val)) !== null,
             );
@@ -44,55 +41,77 @@ export const getSortedNodes = (
             if (x.length > 0) {
                 x.sort((a, b) => naturalSort(a.source.value, b.source.value));
 
+                const sortedNodes = x.map<SortedNode<ImportDeclaration>>(
+                    (node) => ({
+                        node,
+                        trailingNewLine: false,
+                    }),
+                );
+
                 if (res.length > 0) {
-                    return compact([...res, newLine, ...x]);
+                    if (shouldAddNewLine) {
+                        res[res.length - 1].trailingNewLine = true;
+                    }
+
+                    return compact([...res, ...sortedNodes]);
                 }
-                return x;
+                return sortedNodes;
             }
             return res;
         },
         [],
     );
 
-    const sortedNodesNotInImportOrder = originalNodes.filter(
-        (node) => !isSimilarTextExistInArray(order, node.source.value),
-    );
+    const sortedNodesNotInImportOrder = originalNodes
+        .filter((node) => !isSimilarTextExistInArray(order, node.source.value))
+        .map<SortedNode<ImportDeclaration>>((node) => ({
+            node,
+            trailingNewLine: false,
+        }));
 
     sortedNodesNotInImportOrder.sort((a, b) =>
-        naturalSort(a.source.value, b.source.value),
+        naturalSort(a.node.source.value, b.node.source.value),
     );
 
     const shouldAddNewLineInBetween =
         sortedNodesNotInImportOrder.length > 0 && importOrderSeparation;
 
+    if (shouldAddNewLineInBetween) {
+        sortedNodesNotInImportOrder[
+            sortedNodesNotInImportOrder.length - 1
+        ].trailingNewLine = true;
+    }
+    if (sortedNodesByImportOrder.length > 0) {
+        sortedNodesByImportOrder[
+            sortedNodesByImportOrder.length - 1
+        ].trailingNewLine = true;
+    }
+
     const allSortedNodes = compact([
         ...sortedNodesNotInImportOrder,
-        shouldAddNewLineInBetween ? newLineNode : null,
         ...sortedNodesByImportOrder,
-        newLineNode, // insert a newline after all sorted imports
     ]);
 
     // maintain a copy of the nodes to extract comments from
-    const sortedNodesClone = allSortedNodes.map(clone);
-
-    const firstNodesComments = nodes[0].leadingComments;
+    const sortedNodesLeadingComments = allSortedNodes.map(
+        ({ node }) => node.leadingComments || [],
+    );
 
     // Remove all comments from sorted nodes
-    allSortedNodes.forEach(removeComments);
+    allSortedNodes.forEach(({ node }) => removeComments(node));
 
     // insert comments other than the first comments
-    allSortedNodes.forEach((node, index) => {
-        if (!isEqual(nodes[0].loc, node.loc)) {
-            addComments(
-                node,
-                'leading',
-                sortedNodesClone[index].leadingComments || [],
-            );
-        }
+    allSortedNodes.forEach(({ node }, index) => {
+        let leadingComments = sortedNodesLeadingComments[index];
+        addComments(node, 'leading', leadingComments);
     });
 
-    if (firstNodesComments) {
-        addComments(allSortedNodes[0], 'leading', firstNodesComments);
+    if (firstNodeLeadingComments) {
+        addComments(
+            allSortedNodes[0].node,
+            'leading',
+            firstNodeLeadingComments,
+        );
     }
 
     return allSortedNodes;

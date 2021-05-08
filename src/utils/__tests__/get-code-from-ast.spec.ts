@@ -2,8 +2,8 @@ import { format } from 'prettier';
 import { parse as babelParser, ParserOptions } from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
 import { ImportDeclaration, isTSModuleDeclaration } from '@babel/types';
-import { getCodeFromAst } from '../get-code-from-ast';
 import { getSortedNodes } from '../get-sorted-nodes';
+import { sortImportsInPlace } from '../get-code-from-ast';
 
 const getImportNodes = (code: string, options?: ParserOptions) => {
     const importNodes: ImportDeclaration[] = [];
@@ -38,7 +38,13 @@ import a from 'a';
 `;
     const importNodes = getImportNodes(code);
     const sortedNodes = getSortedNodes(importNodes, [], false);
-    const formatted = getCodeFromAst(sortedNodes, code, null);
+
+    const parser = (code: string) =>
+        babelParser(code, {
+            sourceType: 'module',
+        });
+    const formatted = sortImportsInPlace(sortedNodes, code, parser);
+
     expect(format(formatted, { parser: 'babel' })).toEqual(
         `// first comment
 // second comment

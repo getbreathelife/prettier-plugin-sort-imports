@@ -2,7 +2,7 @@ import { parse as babelParser, ParserOptions } from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
 import { ImportDeclaration, isTSModuleDeclaration } from '@babel/types';
 
-import { getCodeFromAst } from './utils/get-code-from-ast';
+import { sortImportsInPlace } from './utils/get-code-from-ast';
 import { getSortedNodes } from './utils/get-sorted-nodes';
 import { getParserPlugins } from './utils/get-parser-plugins';
 import { PrettierOptions } from './types';
@@ -24,8 +24,8 @@ export function preprocessor(code: string, options: PrettierOptions) {
         plugins: [...plugins, ...experimentalBabelParserPluginsList],
     };
 
-    const ast = babelParser(code, parserOptions);
-    const interpreter = ast.program.interpreter;
+    const parser = (input: string) => babelParser(input, parserOptions);
+    const ast = parser(code);
 
     traverse(ast, {
         ImportDeclaration(path: NodePath<ImportDeclaration>) {
@@ -47,5 +47,5 @@ export function preprocessor(code: string, options: PrettierOptions) {
         importOrderSeparation,
     );
 
-    return getCodeFromAst(allImports, code, interpreter);
+    return sortImportsInPlace(allImports, code, parser);
 }

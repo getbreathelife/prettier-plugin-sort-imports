@@ -1,57 +1,94 @@
+import { Node } from '@babel/core';
 import generate from '@babel/generator';
-import { file, Statement, InterpreterDirective } from '@babel/types';
+import traverse, { NodePath } from '@babel/traverse';
+import {
+    File,
+    ImportDeclaration,
+    isImportDeclaration,
+    isProgram,
+    isTSModuleDeclaration,
+} from '@babel/types';
 
-import { getAllCommentsFromNodes } from './get-all-comments-from-nodes';
-import { removeNodesFromOriginalCode } from './remove-nodes-from-original-code';
-import { newLineCharacters } from '../constants';
+import { newLineCharacters, newLineNode } from '../constants';
+import { SortedNode } from '../types';
 
-/**
- * This function generate a code string from the passed nodes.
- * @param nodes all imports
- * @param originalCode
- */
-export const getCodeFromAst = (
-    nodes: Statement[],
-    originalCode: string,
-    interpreter?: InterpreterDirective | null,
+export const sortImportsInPlace = (
+    nodes: SortedNode<ImportDeclaration>[],
+    code: string,
+    parser: (input: string) => File,
 ) => {
-    const allCommentsFromImports = getAllCommentsFromNodes(nodes);
+    if (nodes.length < 1) return code;
 
-    const nodesToRemoveFromCode = [
-        ...nodes,
-        ...allCommentsFromImports,
-        ...(interpreter ? [interpreter] : []),
-    ];
+    // Remove everything after the import blocks
+    const endIndex = nodes
+        .map((sn) => sn.node.end as number)
+        .reduce((prev, curr) => (curr > prev ? curr : prev), 0);
 
-    const codeWithoutImportsAndInterpreter = removeNodesFromOriginalCode(
-        originalCode,
-        nodesToRemoveFromCode,
-    );
+    const parsedCode = code.slice(0, endIndex);
+    const restOfCode = code.slice(endIndex);
 
-    const newAST = file({
-        type: 'Program',
-        body: nodes,
-        directives: [],
-        sourceType: 'module',
-        interpreter: interpreter,
-        sourceFile: '',
-        leadingComments: [],
-        innerComments: [],
-        trailingComments: [],
-        start: 0,
-        end: 0,
-        loc: {
-            start: { line: 0, column: 0 },
-            end: { line: 0, column: 0 },
+    const ast = parser(parsedCode);
+
+    const pushedBackNodes: Node[] = [];
+    let sortedNodeIndex = 0;
+    traverse(ast, {
+        enter(path: NodePath) {
+            if (isProgram(path.node)) return;
+
+            if (isImportDeclaration(path.node)) {
+                const tsModuleParent = path.findParent((p) =>
+                    isTSModuleDeclaration(p),
+                );
+                if (tsModuleParent) return;
+
+                const { node, trailingNewLine } = nodes[sortedNodeIndex];
+
+                path.node.leadingComments = null;
+                if (!node.trailingComments) {
+                    path.node.trailingComments = null;
+                }
+                path.replaceWith(node);
+
+                if (trailingNewLine || sortedNodeIndex >= nodes.length - 1) {
+                    path.insertAfter(newLineNode);
+                }
+
+                sortedNodeIndex++;
+                path.skip();
+            } else {
+                if (sortedNodeIndex < nodes.length) {
+                    if (!shouldIgnoreNode(path.node)) {
+                        pushedBackNodes.push(path.node);
+                        pushedBackNodes.push(newLineNode);
+                        path.remove();
+                    }
+                } else {
+                    if (pushedBackNodes.length > 0) {
+                        path.insertBefore([newLineNode, ...pushedBackNodes]);
+                    }
+                    path.stop();
+                }
+            }
         },
     });
 
-    const { code } = generate(newAST);
+    const { code: updatedCode } = generate(ast);
 
     return (
-        code.replace(
+        updatedCode.replace(
             /"PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE";/gi,
             newLineCharacters,
-        ) + codeWithoutImportsAndInterpreter.trim()
+        ) + restOfCode
+    );
+};
+
+export const shouldIgnoreNode = (node: Node): boolean => {
+    const { leadingComments } = node;
+    if (!leadingComments) return false;
+
+    const lastComment = leadingComments[leadingComments.length - 1];
+    return (
+        lastComment.type === 'CommentLine' &&
+        lastComment.value === 'prettier-ignore'
     );
 };
