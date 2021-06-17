@@ -15,7 +15,7 @@ const getImportNodes = (code: string) => {
 
     visit(ast, {
         visitImportDeclaration(path: NodePath<n.ImportDeclaration>): any {
-            const tsModuleParent = n.TSModuleDeclaration.check(path.parent.node);
+            const tsModuleParent = n.TSModuleBlock.check(path.parentPath.node);
 
             if (!tsModuleParent && !shouldIgnoreNode(path.node)) {
                 importNodes.push(path.node);

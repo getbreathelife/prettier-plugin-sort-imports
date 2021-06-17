@@ -31,7 +31,7 @@ export const sortImportsInPlace = (
             }
 
             if (n.ImportDeclaration.check(path.node)) {
-                const tsModuleParent = n.TSModuleDeclaration.check(path.parent.node);
+                const tsModuleParent = n.TSModuleBlock.check(path.parentPath.node);
                 if (tsModuleParent) return false;
 
                 const { node, trailingNewLine } = nodes[sortedNodeIndex];

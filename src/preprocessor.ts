@@ -1,4 +1,4 @@
-import { parse as babelParser } from '@babel/parser';
+import { parse as babelParse } from '@babel/parser';
 import { Options, parse, visit } from 'recast';
 import { namedTypes as n } from 'ast-types';
 import { NodePath } from 'ast-types/lib/node-path';
@@ -23,8 +23,9 @@ export function preprocessor(code: string, options: PrettierOptions) {
     const parserOptions: Options = {
         parser: {
             parse(source: string) {
-                return babelParser(source, {
+                return babelParse(source, {
                     sourceType: 'module',
+                    tokens: true,
                     plugins: [...getParserPlugins(prettierParser), ...experimentalBabelParserPluginsList],
                 })
             }
@@ -35,7 +36,7 @@ export function preprocessor(code: string, options: PrettierOptions) {
 
     visit(ast, {
         visitImportDeclaration(path: NodePath<n.ImportDeclaration>): any {
-            const tsModuleParent = n.TSModuleDeclaration.check(path.parent.node);
+            const tsModuleParent = n.TSModuleBlock.check(path.parentPath.node);
 
             if (!tsModuleParent && !shouldIgnoreNode(path.node)) {
                 importNodes.push(path.node);
