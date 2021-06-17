@@ -1,26 +1,27 @@
+import { namedTypes as n } from 'ast-types';
+import { NodePath } from 'ast-types/lib/node-path';
 import { format } from 'prettier';
-import { parse as babelParser, ParserOptions } from '@babel/parser';
-import traverse, { NodePath } from '@babel/traverse';
-import { ImportDeclaration, isTSModuleDeclaration } from '@babel/types';
+import { parse, visit } from 'recast';
+
 import { getSortedNodes } from '../get-sorted-nodes';
 import { sortImportsInPlace } from '../get-code-from-ast';
+import { shouldIgnoreNode } from '../should-ignore-node';
 
-const getImportNodes = (code: string, options?: ParserOptions) => {
-    const importNodes: ImportDeclaration[] = [];
-    const ast = babelParser(code, {
-        ...options,
-        sourceType: 'module',
+const getImportNodes = (code: string) => {
+    const importNodes: n.ImportDeclaration[] = [];
+    const ast = parse(code, {
+        parser: require("recast/parsers/typescript")
     });
 
-    traverse(ast, {
-        ImportDeclaration(path: NodePath<ImportDeclaration>) {
-            const tsModuleParent = path.findParent((p) =>
-                isTSModuleDeclaration(p),
-            );
-            if (!tsModuleParent) {
+    visit(ast, {
+        visitImportDeclaration(path: NodePath<n.ImportDeclaration>): any {
+            const tsModuleParent = n.TSModuleDeclaration.check(path.parent.node);
+
+            if (!tsModuleParent && !shouldIgnoreNode(path.node)) {
                 importNodes.push(path.node);
             }
-        },
+            return false;
+        }
     });
 
     return importNodes;
@@ -40,12 +41,12 @@ import a from 'a';
     const sortedNodes = getSortedNodes(importNodes, [], false);
 
     const parser = (code: string) =>
-        babelParser(code, {
-            sourceType: 'module',
+        parse(code, {
+            parser: require("recast/parsers/typescript"),
         });
     const formatted = sortImportsInPlace(sortedNodes, code, parser);
 
-    expect(format(formatted, { parser: 'babel' })).toEqual(
+    expect(format(formatted, { parser: 'typescript' })).toEqual(
         `// first comment
 // second comment
 import a from "a";

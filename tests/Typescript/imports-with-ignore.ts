@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
-import { isEmpty } from 'lodash-es';
 import thirdParty from 'third-party';
+// prettier-ignore
 import z from 'z';
+
+// prettier-ignore
+import a from 'a';
+
+import { isEmpty } from 'lodash-es';
 // prettier-ignore
 export class AppComponent {
     title = "ng-prettier";

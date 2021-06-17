@@ -1,9 +1,10 @@
 // we do not have types for javascript-natural-sort
 //@ts-ignore
 import naturalSort from 'javascript-natural-sort';
-import { compact, pull, clone } from 'lodash';
+import { compact, pull, clone, partition } from 'lodash';
+import { namedTypes as n } from 'ast-types';
 
-import { ImportDeclaration, addComments, removeComments } from '@babel/types';
+import { addComments, removeComments } from '@babel/types';
 
 import { isSimilarTextExistInArray } from './is-similar-text-in-array';
 import { PrettierOptions, SortedNode } from '../types';
@@ -16,23 +17,23 @@ import { PrettierOptions, SortedNode } from '../types';
  * @param importOrderSeparation boolean indicating if newline should be inserted after each import order
  */
 export const getSortedNodes = (
-    nodes: ImportDeclaration[],
+    nodes: n.ImportDeclaration[],
     order: PrettierOptions['importOrder'],
     importOrderSeparation: boolean,
 ) => {
-    // Extract the top and bottom comments
-    const firstNodeLeadingComments = nodes[0].leadingComments;
-    nodes[0].leadingComments = null;
+    // Extract the top comments
+    const [firstNodeLeadingComments, firstNodeTrailingComments] = partition(nodes[0].comments, (comment) => comment.leading)
+    nodes[0].comments = firstNodeTrailingComments;
 
     const originalNodes = nodes.map(clone);
     const shouldAddNewLine = importOrderSeparation && nodes.length > 1;
     const sortedNodesByImportOrder = order.reduce(
         (
-            res: SortedNode<ImportDeclaration>[],
+            res: SortedNode<n.ImportDeclaration>[],
             val,
-        ): SortedNode<ImportDeclaration>[] => {
+        ): SortedNode<n.ImportDeclaration>[] => {
             const x = originalNodes.filter(
-                (node) => node.source.value.match(new RegExp(val)) !== null,
+                (node) => node.source.value?.toString().match(new RegExp(val)) !== null,
             );
 
             // remove "found" imports from the list of nodes
@@ -41,7 +42,7 @@ export const getSortedNodes = (
             if (x.length > 0) {
                 x.sort((a, b) => naturalSort(a.source.value, b.source.value));
 
-                const sortedNodes = x.map<SortedNode<ImportDeclaration>>(
+                const sortedNodes = x.map<SortedNode<n.ImportDeclaration>>(
                     (node) => ({
                         node,
                         trailingNewLine: false,
@@ -63,8 +64,8 @@ export const getSortedNodes = (
     );
 
     const sortedNodesNotInImportOrder = originalNodes
-        .filter((node) => !isSimilarTextExistInArray(order, node.source.value))
-        .map<SortedNode<ImportDeclaration>>((node) => ({
+        .filter((node) => !isSimilarTextExistInArray(order, node.source.value?.toString() ?? ''))
+        .map<SortedNode<n.ImportDeclaration>>((node) => ({
             node,
             trailingNewLine: false,
         }));
@@ -94,24 +95,26 @@ export const getSortedNodes = (
 
     // maintain a copy of the nodes to extract comments from
     const sortedNodesLeadingComments = allSortedNodes.map(
-        ({ node }) => node.leadingComments || [],
+        ({ node }) => node.comments?.filter(comment => comment.trailing) ?? [],
     );
 
     // Remove all comments from sorted nodes
-    allSortedNodes.forEach(({ node }) => removeComments(node));
+    allSortedNodes.forEach(({ node }) => node.comments = []);
 
     // insert comments other than the first comments
     allSortedNodes.forEach(({ node }, index) => {
         let leadingComments = sortedNodesLeadingComments[index];
-        addComments(node, 'leading', leadingComments);
+        if (!node.comments) {
+            node.comments = [];
+        }
+        node.comments.push(...leadingComments);
     });
 
     if (firstNodeLeadingComments) {
-        addComments(
-            allSortedNodes[0].node,
-            'leading',
-            firstNodeLeadingComments,
-        );
+        if (!allSortedNodes[0].node.comments) {
+            allSortedNodes[0].node.comments = [];
+        }
+        allSortedNodes[0].node.comments.push(...firstNodeLeadingComments);
     }
 
     return allSortedNodes;

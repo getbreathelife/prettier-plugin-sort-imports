@@ -1,54 +1,46 @@
-import { Node } from '@babel/core';
-import generate from '@babel/generator';
-import traverse, { NodePath } from '@babel/traverse';
-import {
-    File,
-    ImportDeclaration,
-    isImportDeclaration,
-    isProgram,
-    isTSModuleDeclaration,
-} from '@babel/types';
+import { namedTypes as n } from 'ast-types';
+import { NodePath } from 'ast-types/lib/node-path';
+
+import { print, visit } from 'recast';
 
 import { newLineCharacters, newLineNode } from '../constants';
 import { SortedNode } from '../types';
+import { shouldIgnoreNode } from './should-ignore-node';
 
 export const sortImportsInPlace = (
-    nodes: SortedNode<ImportDeclaration>[],
+    nodes: SortedNode<n.ImportDeclaration>[],
     code: string,
-    parser: (input: string) => File,
+    parser: (input: string) => n.File,
 ) => {
     if (nodes.length < 1) return code;
 
-    // Remove everything after the import blocks
-    const endIndex = nodes
-        .map((sn) => sn.node.end as number)
-        .reduce((prev, curr) => (curr > prev ? curr : prev), 0);
+    const ast = parser(code);
 
-    const parsedCode = code.slice(0, endIndex);
-    const restOfCode = code.slice(endIndex);
-
-    const ast = parser(parsedCode);
-
-    const pushedBackNodes: Node[] = [];
+    const pushedBackNodes: n.Node[] = [];
     let hasIgnoredNodes = false;
     let sortedNodeIndex = 0;
-    traverse(ast, {
-        enter(path: NodePath) {
-            if (isProgram(path.node)) return;
+    visit(ast.program, {
+        visitNode(path: NodePath<n.Node>): any {
+            if (n.File.check(path.value) || n.Program.check(path.node)) {
+                this.traverse(path);
+            }
 
-            if (isImportDeclaration(path.node)) {
-                const tsModuleParent = path.findParent((p) =>
-                    isTSModuleDeclaration(p),
-                );
-                if (tsModuleParent) return;
+            if (shouldIgnoreNode(path.node)) {
+                hasIgnoredNodes = true;
+                return false;
+            }
+
+            if (n.ImportDeclaration.check(path.node)) {
+                const tsModuleParent = n.TSModuleDeclaration.check(path.parent.node);
+                if (tsModuleParent) return false;
 
                 const { node, trailingNewLine } = nodes[sortedNodeIndex];
 
-                path.node.leadingComments = null;
-                if (!node.trailingComments) {
-                    path.node.trailingComments = null;
-                }
-                path.replaceWith(node);
+                // path.node.leadingComments = null;
+                // if (!node.trailingComments) {
+                //     path.node.trailingComments = null;
+                // }
+                path.replace(node);
 
                 if (trailingNewLine || sortedNodeIndex >= nodes.length - 1) {
                     path.insertAfter(newLineNode);
@@ -62,44 +54,29 @@ export const sortImportsInPlace = (
                 }
 
                 sortedNodeIndex++;
-                path.skip();
+                return false;
             } else {
                 if (sortedNodeIndex < nodes.length) {
-                    if (!shouldIgnoreNode(path.node)) {
-                        pushedBackNodes.push(path.node);
-                        pushedBackNodes.push(newLineNode);
-                        path.remove();
-                    } else {
-                        hasIgnoredNodes = true;
-                        path.skip();
-                    }
+                    pushedBackNodes.push(path.node);
+                    pushedBackNodes.push(newLineNode);
+                    path.prune();
+                    return false;
                 } else {
                     if (pushedBackNodes.length > 0) {
                         path.insertBefore([newLineNode, ...pushedBackNodes]);
                     }
-                    path.stop();
+                    this.abort();
                 }
             }
-        },
+        }
     });
 
-    const { code: updatedCode } = generate(ast);
+    const { code: updatedCode } = print(ast);
 
     return (
         updatedCode.replace(
             /"PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE";/gi,
             newLineCharacters,
-        ) + restOfCode
-    );
-};
-
-export const shouldIgnoreNode = (node: Node): boolean => {
-    const { leadingComments } = node;
-    if (!leadingComments) return false;
-
-    const lastComment = leadingComments[leadingComments.length - 1];
-    return (
-        lastComment.type === 'CommentLine' &&
-        lastComment.value.trim() === 'prettier-ignore'
+        )
     );
 };

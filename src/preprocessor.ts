@@ -1,41 +1,38 @@
-import { parse as babelParser, ParserOptions } from '@babel/parser';
-import traverse, { NodePath } from '@babel/traverse';
-import { ImportDeclaration, isTSModuleDeclaration } from '@babel/types';
+import { parse, visit } from 'recast';
+import { namedTypes as n } from 'ast-types';
+import { NodePath } from 'ast-types/lib/node-path';
 
 import { sortImportsInPlace } from './utils/get-code-from-ast';
 import { getSortedNodes } from './utils/get-sorted-nodes';
 import { getParserPlugins } from './utils/get-parser-plugins';
 import { PrettierOptions } from './types';
+import { shouldIgnoreNode } from './utils/should-ignore-node';
 
 export function preprocessor(code: string, options: PrettierOptions) {
     const {
         importOrder,
         importOrderSeparation,
         parser: prettierParser,
-        experimentalBabelParserPluginsList = [],
     } = options;
 
-    const plugins = getParserPlugins(prettierParser);
+    const parserOption = getParserPlugins(prettierParser);
 
-    const importNodes: ImportDeclaration[] = [];
+    const importNodes: n.ImportDeclaration[] = [];
 
-    const parserOptions: ParserOptions = {
-        sourceType: 'module',
-        plugins: [...plugins, ...experimentalBabelParserPluginsList],
-    };
-
-    const parser = (input: string) => babelParser(input, parserOptions);
+    const parser = (input: string): n.File => parse(input, {
+        parser: parserOption
+    });
     const ast = parser(code);
 
-    traverse(ast, {
-        ImportDeclaration(path: NodePath<ImportDeclaration>) {
-            const tsModuleParent = path.findParent((p) =>
-                isTSModuleDeclaration(p),
-            );
-            if (!tsModuleParent) {
+    visit(ast, {
+        visitImportDeclaration(path: NodePath<n.ImportDeclaration>): any {
+            const tsModuleParent = n.TSModuleDeclaration.check(path.parent.node);
+
+            if (!tsModuleParent && !shouldIgnoreNode(path.node)) {
                 importNodes.push(path.node);
             }
-        },
+            return false;
+        }
     });
 
     // short-circuit if there are no import declaration

@@ -1,36 +1,33 @@
-import { parse as babelParser, ParserOptions } from '@babel/parser';
-import traverse, { NodePath } from '@babel/traverse';
-import {
-    ImportDeclaration,
-    isTSModuleDeclaration,
-    CommentBlock,
-    CommentLine,
-} from '@babel/types';
+import { namedTypes as n } from 'ast-types';
+import { NodePath } from 'ast-types/lib/node-path';
+import { parse, visit } from 'recast';
+
 import { getAllCommentsFromNodes } from '../get-all-comments-from-nodes';
 import { getSortedNodes } from '../get-sorted-nodes';
+import { shouldIgnoreNode } from '../should-ignore-node';
 
-const getSortedImportNodes = (code: string, options?: ParserOptions) => {
-    const importNodes: ImportDeclaration[] = [];
-    const ast = babelParser(code, {
-        ...options,
-        sourceType: 'module',
+
+const getSortedImportNodes = (code: string) => {
+    const importNodes: n.ImportDeclaration[] = [];
+    const ast = parse(code, {
+        parser: require("recast/parsers/typescript")
     });
 
-    traverse(ast, {
-        ImportDeclaration(path: NodePath<ImportDeclaration>) {
-            const tsModuleParent = path.findParent((p) =>
-                isTSModuleDeclaration(p),
-            );
-            if (!tsModuleParent) {
+    visit(ast, {
+        visitImportDeclaration(path: NodePath<n.ImportDeclaration>): any {
+            const tsModuleParent = n.TSModuleDeclaration.check(path.parent.node);
+
+            if (!tsModuleParent && !shouldIgnoreNode(path.node)) {
                 importNodes.push(path.node);
             }
-        },
+            return false;
+        }
     });
 
     return getSortedNodes(importNodes, [], false);
 };
 
-const getComments = (commentNodes: (CommentBlock | CommentLine)[]) =>
+const getComments = (commentNodes: (n.CommentBlock | n.CommentLine)[]) =>
     commentNodes.map((node) => node.value);
 
 test('it returns empty array when there is no comment', () => {
