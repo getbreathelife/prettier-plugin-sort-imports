@@ -16,7 +16,7 @@ export const sortImportsInPlace = (
 
     const ast = parser(code);
 
-    const pushedBackNodes: n.Node[] = [];
+    const pushedBackNodes: (n.Node | string)[] = [];
     let hasIgnoredNodes = false;
     let sortedNodeIndex = 0;
     visit(ast.program, {
@@ -63,7 +63,7 @@ export const sortImportsInPlace = (
                     return false;
                 } else {
                     if (pushedBackNodes.length > 0) {
-                        path.insertBefore([newLineNode, ...pushedBackNodes]);
+                        path.insertBefore(newLineNode, ...pushedBackNodes);
                     }
                     this.abort();
                 }
@@ -75,7 +75,7 @@ export const sortImportsInPlace = (
 
     return (
         updatedCode.replace(
-            /"PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE";/gi,
+            /PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE/gi,
             newLineCharacters,
         )
     );
