@@ -1,9 +1,12 @@
+import { ParserPlugin } from '@babel/parser';
 import { BuiltInParserName, CustomParser } from 'prettier';
 import {
     flow,
     typescript,
+    decoratorsLegacy,
+    classProperties,
+    jsx,
 } from '../constants';
-
 
 /**
  * Returns a list of babel parser plugin names
@@ -12,15 +15,14 @@ import {
  */
 export const getParserPlugins = (
     prettierParser: BuiltInParserName | CustomParser,
-): any => {
+): ParserPlugin[] => {
     const isFlow = prettierParser === flow;
     const isTypescript = prettierParser === typescript;
 
-    if (isTypescript) {
-        return require("recast/parsers/typescript");
-    }
-    if (isFlow) {
-        return require("recast/parsers/flow");
-    }
-    return null;
+    // In case of typescript as prettier parser, we pass the following
+    // decoratorsLegacy, classProperties are passed in case of angular
+    // projects.
+    const tsPlugins = [typescript, jsx, decoratorsLegacy, classProperties];
+
+    return [...(isFlow ? [flow] : []), ...(isTypescript ? tsPlugins : [])];
 };

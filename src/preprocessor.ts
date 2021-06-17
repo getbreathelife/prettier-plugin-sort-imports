@@ -1,4 +1,5 @@
-import { parse, visit } from 'recast';
+import { parse as babelParser } from '@babel/parser';
+import { Options, parse, visit } from 'recast';
 import { namedTypes as n } from 'ast-types';
 import { NodePath } from 'ast-types/lib/node-path';
 
@@ -8,20 +9,28 @@ import { getParserPlugins } from './utils/get-parser-plugins';
 import { PrettierOptions } from './types';
 import { shouldIgnoreNode } from './utils/should-ignore-node';
 
+
 export function preprocessor(code: string, options: PrettierOptions) {
     const {
         importOrder,
         importOrderSeparation,
         parser: prettierParser,
+        experimentalBabelParserPluginsList = [],
     } = options;
-
-    const parserOption = getParserPlugins(prettierParser);
 
     const importNodes: n.ImportDeclaration[] = [];
 
-    const parser = (input: string): n.File => parse(input, {
-        parser: parserOption
-    });
+    const parserOptions: Options = {
+        parser: {
+            parse(source: string) {
+                return babelParser(source, {
+                    sourceType: 'module',
+                    plugins: [...getParserPlugins(prettierParser), ...experimentalBabelParserPluginsList],
+                })
+            }
+        }
+    };
+    const parser = (input: string): n.File => parse(input, parserOptions);
     const ast = parser(code);
 
     visit(ast, {
