@@ -5,8 +5,8 @@ import z from 'z';
 
 // prettier-ignore
 import a from 'a';
-
 import { isEmpty } from 'lodash-es';
+
 // prettier-ignore
 export class AppComponent {
     title = "ng-prettier";

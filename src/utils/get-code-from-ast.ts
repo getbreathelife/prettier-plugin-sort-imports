@@ -1,20 +1,30 @@
 import { namedTypes as n } from 'ast-types';
 import { NodePath } from 'ast-types/lib/node-path';
-
-import { print, visit } from 'recast';
+import { Options, parse, print, visit } from 'recast';
 
 import { newLineCharacters, newLineNode } from '../constants';
 import { SortedNode } from '../types';
 import { shouldIgnoreNode } from './should-ignore-node';
 
-export const sortImportsInPlace = (
+export const sortImports = (
     nodes: SortedNode<n.ImportDeclaration>[],
     code: string,
-    parser: (input: string) => n.File,
+    parserOptions: Options,
 ) => {
     if (nodes.length < 1) return code;
 
-    const ast = parser(code);
+    const maxParsedLine = nodes.map(sn => sn.node.loc?.end.line).filter(line => !!line).reduce((max: number, curr?: number) => {
+        if (!curr || max > curr) return max;
+        return curr;
+    }, 0);
+
+    const lineTerminator = parserOptions.lineTerminator || '\n';
+    const codeArr = code.split(lineTerminator);
+    const parsedCode = codeArr.slice(0, maxParsedLine).join(lineTerminator);
+    const restOfCode = codeArr.slice(maxParsedLine).join(lineTerminator);
+
+    const parser = (input: string): n.File => parse(input, parserOptions);
+    const ast = parser(parsedCode);
 
     const pushedBackNodes: (n.Node | string)[] = [];
     let hasIgnoredNodes = false;
@@ -36,10 +46,6 @@ export const sortImportsInPlace = (
 
                 const { node, trailingNewLine } = nodes[sortedNodeIndex];
 
-                // path.node.leadingComments = null;
-                // if (!node.trailingComments) {
-                //     path.node.trailingComments = null;
-                // }
                 path.replace(node);
 
                 if (trailingNewLine || sortedNodeIndex >= nodes.length - 1) {
@@ -71,12 +77,12 @@ export const sortImportsInPlace = (
         }
     });
 
-    const { code: updatedCode } = print(ast);
+    const { code: updatedCode } = print(ast, parserOptions);
 
     return (
         updatedCode.replace(
             /PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE/gi,
             newLineCharacters,
-        )
+        ) + restOfCode
     );
 };

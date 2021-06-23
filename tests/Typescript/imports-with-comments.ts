@@ -1,3 +1,4 @@
+import { Component } from "@angular/core";
 import z from 'z';
 import { isEmpty } from "lodash-es";
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
@@ -13,8 +14,6 @@ import component from "@ui/hello";  // comment
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 import something from "@server/something";
 import xyz from "@ui/xyz";
-
-import { Component } from "@angular/core";
 
 @Component({
   selector: "app-root",

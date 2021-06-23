@@ -4,7 +4,7 @@ import { format } from 'prettier';
 import { parse, visit } from 'recast';
 
 import { getSortedNodes } from '../get-sorted-nodes';
-import { sortImportsInPlace } from '../get-code-from-ast';
+import { sortImports } from '../get-code-from-ast';
 import { shouldIgnoreNode } from '../should-ignore-node';
 
 const getImportNodes = (code: string) => {
@@ -44,7 +44,7 @@ import a from 'a';
         parse(code, {
             parser: require("recast/parsers/typescript"),
         });
-    const formatted = sortImportsInPlace(sortedNodes, code, parser);
+    const formatted = sortImports(sortedNodes, code, parser);
 
     expect(format(formatted, { parser: 'typescript' })).toEqual(
         `// first comment

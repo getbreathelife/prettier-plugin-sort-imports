@@ -3,7 +3,7 @@ import { Options, parse, visit } from 'recast';
 import { namedTypes as n } from 'ast-types';
 import { NodePath } from 'ast-types/lib/node-path';
 
-import { sortImportsInPlace } from './utils/get-code-from-ast';
+import { sortImports } from './utils/get-code-from-ast';
 import { getSortedNodes } from './utils/get-sorted-nodes';
 import { getParserPlugins } from './utils/get-parser-plugins';
 import { PrettierOptions } from './types';
@@ -29,7 +29,10 @@ export function preprocessor(code: string, options: PrettierOptions) {
                     plugins: [...getParserPlugins(prettierParser), ...experimentalBabelParserPluginsList],
                 })
             }
-        }
+        },
+        tabWidth: options.tabWidth,
+        useTabs: options.useTabs,
+        lineTerminator: require("os").EOL || "\n",
     };
     const parser = (input: string): n.File => parse(input, parserOptions);
     const ast = parser(code);
@@ -54,5 +57,5 @@ export function preprocessor(code: string, options: PrettierOptions) {
         importOrderSeparation,
     );
 
-    return sortImportsInPlace(allImports, code, parser);
+    return sortImports(allImports, code, parserOptions);
 }

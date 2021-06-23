@@ -1,6 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`imports-with-comments.ts - typescript-verify: imports-with-comments.ts 1`] = `
+import { Component } from "@angular/core";
 import z from 'z';
 import { isEmpty } from "lodash-es";
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
@@ -16,8 +17,6 @@ import component from "@ui/hello";  // comment
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 import something from "@server/something";
 import xyz from "@ui/xyz";
-
-import { Component } from "@angular/core";
 
 @Component({
   selector: "app-root",
@@ -38,7 +37,7 @@ import thirdParty from "third-party"; // comment
 import z from "z";
 
 import abc from "@core/abc";
-// comment
+//comment
 import otherthing from "@core/otherthing";
 
 import something from "@server/something";
@@ -76,8 +75,8 @@ import z from 'z';
 
 // prettier-ignore
 import a from 'a';
-
 import { isEmpty } from 'lodash-es';
+
 // prettier-ignore
 export class AppComponent {
     title = "ng-prettier";
@@ -106,21 +105,21 @@ import sameLevelRelativePath from './sameLevelRelativePath';
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 import { Component } from "@angular/core";
 import { isEmpty } from "lodash-es";
+
 // prettier-ignore
 import z from 'z';
 
 // prettier-ignore
 import a from 'a';
-
 import thirdParty from "third-party";
 
 // prettier-ignore
 export class AppComponent {
-  title = "ng-prettier";
+    title = "ng-prettier";
 
-  get text(): string {
-    return isEmpty(this.title) ? "" : this.title;
-  }
+    get text(): string {
+        return isEmpty(this.title) ? "" : this.title;
+    }
 
 }
 

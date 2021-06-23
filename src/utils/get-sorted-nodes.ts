@@ -93,23 +93,6 @@ export const getSortedNodes = (
         ...sortedNodesByImportOrder,
     ]);
 
-    // maintain a copy of the nodes to extract comments from
-    const sortedNodesLeadingComments = allSortedNodes.map(
-        ({ node }) => node.comments?.filter(comment => comment.trailing) ?? [],
-    );
-
-    // Remove all comments from sorted nodes
-    allSortedNodes.forEach(({ node }) => node.comments = []);
-
-    // insert comments other than the first comments
-    allSortedNodes.forEach(({ node }, index) => {
-        let leadingComments = sortedNodesLeadingComments[index];
-        if (!node.comments) {
-            node.comments = [];
-        }
-        node.comments.push(...leadingComments);
-    });
-
     if (firstNodeLeadingComments) {
         if (!allSortedNodes[0].node.comments) {
             allSortedNodes[0].node.comments = [];
