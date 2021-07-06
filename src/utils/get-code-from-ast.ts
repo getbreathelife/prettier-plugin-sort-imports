@@ -2,9 +2,10 @@ import { namedTypes as n } from 'ast-types';
 import { NodePath } from 'ast-types/lib/node-path';
 import { Options, parse, print, visit } from 'recast';
 
-import { newLineCharacters, newLineNode } from '../constants';
+import { commentShield, newLineCharacters, newLineNode } from '../constants';
 import { SortedNode } from '../types';
 import { shouldIgnoreNode } from './should-ignore-node';
+import { shieldSpecialLineInComment } from './shield-special-line-in-comment';
 
 export const sortImports = (
     nodes: SortedNode<n.ImportDeclaration>[],
@@ -20,7 +21,9 @@ export const sortImports = (
 
     const lineTerminator = parserOptions.lineTerminator || '\n';
     const codeArr = code.split(lineTerminator);
-    const parsedCode = codeArr.slice(0, maxParsedLine).join(lineTerminator);
+
+    const parsedCode = codeArr.slice(0, maxParsedLine).map(shieldSpecialLineInComment).join(lineTerminator);
+
     const restOfCode = codeArr.slice(maxParsedLine).join(lineTerminator);
 
     const parser = (input: string): n.File => parse(input, parserOptions);
@@ -85,6 +88,9 @@ export const sortImports = (
         updatedCode.replace(
             /PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE/gi,
             newLineCharacters,
+        ).replace(
+            commentShield,
+            ''
         ) + restOfCode
     );
 };

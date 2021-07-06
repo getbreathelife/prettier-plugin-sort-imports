@@ -8,6 +8,8 @@ import { getSortedNodes } from './utils/get-sorted-nodes';
 import { getParserPlugins } from './utils/get-parser-plugins';
 import { PrettierOptions } from './types';
 import { shouldIgnoreNode } from './utils/should-ignore-node';
+import { commentShield } from './constants';
+import { shieldSpecialLineInComment } from './utils/shield-special-line-in-comment';
 
 
 export function preprocessor(code: string, options: PrettierOptions) {
@@ -35,7 +37,11 @@ export function preprocessor(code: string, options: PrettierOptions) {
         lineTerminator: require("os").EOL || "\n",
     };
     const parser = (input: string): n.File => parse(input, parserOptions);
-    const ast = parser(code);
+
+    const lineTerminator = parserOptions.lineTerminator || '\n';
+    const processedCode = code.split(lineTerminator).map(shieldSpecialLineInComment).join(lineTerminator);
+
+    const ast = parser(processedCode);
 
     visit(ast, {
         visitImportDeclaration(path: NodePath<n.ImportDeclaration>): any {
