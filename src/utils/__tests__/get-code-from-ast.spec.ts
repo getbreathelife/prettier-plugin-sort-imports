@@ -40,11 +40,9 @@ import a from 'a';
     const importNodes = getImportNodes(code);
     const sortedNodes = getSortedNodes(importNodes, [], false);
 
-    const parser = (code: string) =>
-        parse(code, {
-            parser: require("recast/parsers/typescript"),
-        });
-    const formatted = sortImports(sortedNodes, code, parser);
+    const formatted = sortImports(sortedNodes, code, {
+        parser: require("recast/parsers/typescript")
+    });
 
     expect(format(formatted, { parser: 'typescript' })).toEqual(
         `// first comment

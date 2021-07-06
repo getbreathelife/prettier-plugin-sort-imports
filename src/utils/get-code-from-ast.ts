@@ -60,6 +60,11 @@ export const sortImports = (
                 }
 
                 sortedNodeIndex++;
+
+                if (sortedNodeIndex >= nodes.length && pushedBackNodes.length > 0) {
+                    path.insertAfter(newLineNode, ...pushedBackNodes);
+                }
+
                 return false;
             } else {
                 if (sortedNodeIndex < nodes.length) {
@@ -68,9 +73,6 @@ export const sortImports = (
                     path.prune();
                     return false;
                 } else {
-                    if (pushedBackNodes.length > 0) {
-                        path.insertBefore(newLineNode, ...pushedBackNodes);
-                    }
                     this.abort();
                 }
             }
