@@ -38,7 +38,7 @@ import k from 'k';
 import a from 'a';
 `;
     const importNodes = getImportNodes(code);
-    const sortedNodes = getSortedNodes(importNodes, [], false);
+    const sortedNodes = getSortedNodes(importNodes, []);
 
     const formatted = sortImports(sortedNodes, code, {
         parser: require("recast/parsers/typescript")

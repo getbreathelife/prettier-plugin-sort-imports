@@ -8,14 +8,11 @@ import { getSortedNodes } from './utils/get-sorted-nodes';
 import { getParserPlugins } from './utils/get-parser-plugins';
 import { PrettierOptions } from './types';
 import { shouldIgnoreNode } from './utils/should-ignore-node';
-import { commentShield } from './constants';
 import { shieldSpecialLineInComment } from './utils/shield-special-line-in-comment';
-
 
 export function preprocessor(code: string, options: PrettierOptions) {
     const {
         importOrder,
-        importOrderSeparation,
         parser: prettierParser,
         experimentalBabelParserPluginsList = [],
     } = options;
@@ -60,7 +57,6 @@ export function preprocessor(code: string, options: PrettierOptions) {
     const allImports = getSortedNodes(
         importNodes,
         importOrder,
-        importOrderSeparation,
     );
 
     return sortImports(allImports, code, parserOptions);
