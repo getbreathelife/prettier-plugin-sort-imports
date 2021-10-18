@@ -11,6 +11,12 @@ const options = {
         default: [{ value: [] }],
         description: 'Provide an order to sort imports.',
     },
+    importOrderSeparation: {
+        type: 'boolean',
+        category: 'Global',
+        default: false,
+        description: 'Should imports be separated by new line ?',
+    },
     experimentalBabelParserPluginsList: {
         type: 'path',
         category: 'Global',

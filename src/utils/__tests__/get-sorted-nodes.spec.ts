@@ -42,14 +42,16 @@ const getSortedNodesNames = (imports: n.ImportDeclaration[]) =>
 
 test('it returns all sorted nodes', () => {
     const result = getImportNodes(code);
-    const sorted = getSortedNodes(result, []);
+    const sorted = getSortedNodes(result, [], false).map((sn) => sn.node);
     expect(sorted).toMatchSnapshot();
     expect(getSortedNodesNames(sorted)).toEqual(['a', 'c', 'g', 'k', 't', 'z']);
 });
 
 test('it returns all sorted nodes with sort order', () => {
     const result = getImportNodes(code);
-    const sorted = getSortedNodes(result, ['^a$', '^t$', '^k$']);
+    const sorted = getSortedNodes(result, ['^a$', '^t$', '^k$'], true).map(
+        (sn) => sn.node,
+    );
     expect(sorted).toMatchSnapshot();
     expect(getSortedNodesNames(sorted)).toEqual(['c', 'g', 'z', 'a', 't', 'k']);
 });

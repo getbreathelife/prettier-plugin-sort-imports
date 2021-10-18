@@ -26,7 +26,6 @@ import a from "a";
 import c from "c";
 import thirdParty from "third-party";
 import x from "x";
-
 import otherthing from "@core/otherthing";
 import something from "@server/something";
 import component from "@ui/hello";
@@ -37,6 +36,7 @@ import oneLevelRelativePath from "../oneLevelRelativePath";
 import sameLevelRelativePath from "./sameLevelRelativePath";
 
 export { random } from "./random";
+
 export default {
     title: "hello",
 };
@@ -52,6 +52,7 @@ import React from 'react';
 export const a = 1;
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 import React from "react";
+
 export const a = 1;
 
 `;
@@ -97,6 +98,7 @@ function add(a:number,b:number) {
 // I am second line of top level comment in this file.
 import React from "react";
 import "./commands";
+
 // Comment
 // Comment
 
@@ -191,7 +193,6 @@ import c from "c";
 // I am stick to third party comment
 import thirdParty from "third-party";
 import x from "x";
-
 import otherthing from "@core/otherthing";
 import something from "@server/something";
 import component from "@ui/hello";
@@ -211,6 +212,7 @@ import sameLevelRelativePath from "./sameLevelRelativePath";
 export {
     random, // inner comment
 } from "./random";
+
 export default {
     title: "hello",
 };

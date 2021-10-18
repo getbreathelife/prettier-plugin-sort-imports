@@ -5,28 +5,31 @@ import { compact, pull, clone, partition } from 'lodash';
 import { namedTypes as n } from 'ast-types';
 
 import { isSimilarTextExistInArray } from './is-similar-text-in-array';
-import { PrettierOptions } from '../types';
+import { PrettierOptions, SortedNode } from '../types';
 
 /**
  * This function returns all the nodes which are in the importOrder array.
  * The plugin considered these import nodes as local import declarations.
  * @param nodes all import nodes
  * @param order import order
+ * @param importOrderSeparation boolean indicating if newline should be inserted after each import order
  */
 export const getSortedNodes = (
     nodes: n.ImportDeclaration[],
     order: PrettierOptions['importOrder'],
+    importOrderSeparation: boolean,
 ) => {
     // Extract the top comments
     const [firstNodeLeadingComments, firstNodeTrailingComments] = partition(nodes[0].comments, (comment) => comment.leading)
     nodes[0].comments = firstNodeTrailingComments;
 
     const originalNodes = nodes.map(clone);
+    const shouldAddNewLine = importOrderSeparation && nodes.length > 1;
     const sortedNodesByImportOrder = order.reduce(
         (
-            res: n.ImportDeclaration[],
+            res: SortedNode<n.ImportDeclaration>[],
             val,
-        ): n.ImportDeclaration[] => {
+        ): SortedNode<n.ImportDeclaration>[] => {
             const x = originalNodes.filter(
                 (node) => node.source.value?.toString().match(new RegExp(val)) !== null,
             );
@@ -37,10 +40,21 @@ export const getSortedNodes = (
             if (x.length > 0) {
                 x.sort((a, b) => naturalSort(a.source.value, b.source.value));
 
+                const sortedNodes = x.map<SortedNode<n.ImportDeclaration>>(
+                    (node) => ({
+                        node,
+                        trailingNewLine: false,
+                    }),
+                );
+
                 if (res.length > 0) {
-                    return compact([...res, ...x]);
+                    if (shouldAddNewLine) {
+                        res[res.length - 1].trailingNewLine = true;
+                    }
+
+                    return compact([...res, ...sortedNodes]);
                 }
-                return x;
+                return sortedNodes;
             }
             return res;
         },
@@ -48,11 +62,29 @@ export const getSortedNodes = (
     );
 
     const sortedNodesNotInImportOrder = originalNodes
-        .filter((node) => !isSimilarTextExistInArray(order, node.source.value?.toString() ?? ''));
+        .filter((node) => !isSimilarTextExistInArray(order, node.source.value?.toString() ?? ''))
+        .map<SortedNode<n.ImportDeclaration>>((node) => ({
+            node,
+            trailingNewLine: false,
+        }));
 
     sortedNodesNotInImportOrder.sort((a, b) =>
-        naturalSort(a.source.value, b.source.value),
+        naturalSort(a.node.source.value, b.node.source.value),
     );
+
+    const shouldAddNewLineInBetween =
+        sortedNodesNotInImportOrder.length > 0 && importOrderSeparation;
+
+    if (shouldAddNewLineInBetween) {
+        sortedNodesNotInImportOrder[
+            sortedNodesNotInImportOrder.length - 1
+        ].trailingNewLine = true;
+    }
+    if (sortedNodesByImportOrder.length > 0) {
+        sortedNodesByImportOrder[
+            sortedNodesByImportOrder.length - 1
+        ].trailingNewLine = true;
+    }
 
     const allSortedNodes = compact([
         ...sortedNodesNotInImportOrder,
@@ -60,10 +92,10 @@ export const getSortedNodes = (
     ]);
 
     if (firstNodeLeadingComments) {
-        if (!allSortedNodes[0].comments) {
-            allSortedNodes[0].comments = [];
+        if (!allSortedNodes[0].node.comments) {
+            allSortedNodes[0].node.comments = [];
         }
-        allSortedNodes[0].comments.unshift(...firstNodeLeadingComments);
+        allSortedNodes[0].node.comments.push(...firstNodeLeadingComments);
     }
 
     return allSortedNodes;

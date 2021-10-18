@@ -13,6 +13,7 @@ import { shieldSpecialLineInComment } from './utils/shield-special-line-in-comme
 export function preprocessor(code: string, options: PrettierOptions) {
     const {
         importOrder,
+        importOrderSeparation,
         parser: prettierParser,
         experimentalBabelParserPluginsList = [],
     } = options;
@@ -57,6 +58,7 @@ export function preprocessor(code: string, options: PrettierOptions) {
     const allImports = getSortedNodes(
         importNodes,
         importOrder,
+        importOrderSeparation,
     );
 
     return sortImports(allImports, code, parserOptions);

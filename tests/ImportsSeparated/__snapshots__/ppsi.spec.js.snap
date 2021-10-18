@@ -28,8 +28,11 @@ import thirdParty from "third-party";
 import x from "x";
 
 import otherthing from "@core/otherthing";
+
 import something from "@server/something";
+
 import component from "@ui/hello";
+
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
 import twoLevelRelativePath from "../../twoLevelRelativePath";
@@ -37,6 +40,7 @@ import oneLevelRelativePath from "../oneLevelRelativePath";
 import sameLevelRelativePath from "./sameLevelRelativePath";
 
 export { random } from "./random";
+
 export default {
     title: "hello",
 };
@@ -52,6 +56,7 @@ import React from 'react';
 export const a = 1;
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 import React from "react";
+
 export const a = 1;
 
 `;
@@ -96,7 +101,9 @@ function add(a:number,b:number) {
 // I am top level comment in this file.
 // I am second line of top level comment in this file.
 import React from "react";
+
 import "./commands";
+
 // Comment
 // Comment
 
@@ -131,12 +138,16 @@ function add(a:number,b:number) {
 // I am second line of top level comment in this file.
 import thirdParty from "third-party";
 import z from "z";
+
 import abc from "@core/abc";
 import otherthing from "@core/otherthing";
+
 import qwerty from "@server/qwerty";
 import something from "@server/something";
+
 import component from "@ui/hello";
 import xyz from "@ui/xyz";
+
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
 import twoLevelRelativePath from "../../twoLevelRelativePath";
@@ -193,8 +204,11 @@ import thirdParty from "third-party";
 import x from "x";
 
 import otherthing from "@core/otherthing";
+
 import something from "@server/something";
+
 import component from "@ui/hello";
+
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
 import twoLevelRelativePath from "../../twoLevelRelativePath";
@@ -211,6 +225,7 @@ import sameLevelRelativePath from "./sameLevelRelativePath";
 export {
     random, // inner comment
 } from "./random";
+
 export default {
     title: "hello",
 };
@@ -241,10 +256,13 @@ function add(a:number,b:number) {
 #!/usr/bin/env node
 import abc from "@core/abc";
 import otherthing from "@core/otherthing";
+
 import qwerty from "@server/qwerty";
 import something from "@server/something";
+
 import component from "@ui/hello";
 import xyz from "@ui/xyz";
+
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 import twoLevelRelativePath from "../../twoLevelRelativePath";
 
@@ -267,8 +285,11 @@ import something from "@server/something";
 // I am top level comment
 import abc from "@core/abc";
 import otherthing from "@core/otherthing";
+
 import something from "@server/something";
+
 import component from "@ui/hello";
+
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 // I am comment
 import twoLevelRelativePath from "../../twoLevelRelativePath";
