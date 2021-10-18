@@ -1,26 +1,19 @@
-# Prettier plugin sort imports
+# @getbreathelife/prettier-plugin-sort-imports
 
-A prettier plugin to sort import declarations by provided RegEx order.
-
-### Input
-![input](./public/images/input.png)
-
-### Output
-![output](./public/images/output.png)
-
+A prettier plugin to sort import declarations by provided RegEx order. Based on [`@trivago/prettier-plugin-sort-imports`](https://github.com/trivago/prettier-plugin-sort-imports)
 
 ### Install
 
 npm
 
 ```shell script
-npm install --save-dev @trivago/prettier-plugin-sort-imports
+npm install --save-dev @getbreathelife/prettier-plugin-sort-imports
 ```
 
 or, using yarn
 
 ```shell script
-yarn add --dev @trivago/prettier-plugin-sort-imports
+yarn add --dev @getbreathelife/prettier-plugin-sort-imports
 ```
 
 ### Usage
@@ -36,7 +29,6 @@ module.exports = {
   "jsxBracketSameLine": true,
   "semi": true,
   "importOrder": ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
-  "importOrderSeparation": true,
 }
 ```
 
@@ -47,10 +39,6 @@ A collection of regular expressions in string format. The plugin
 uses [`new RegExp`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp)
 to evaluate regular expression. E.g. `node.source.value.match(new RegExp(val))` Here, `val` 
 is the string provided in import order.
-
-#### `importOrderSeparation`
-A boolean value to enable or disable the new line separation 
-between sorted import declarations. The separation takes place according to `importOrder`.
 
 #### `experimentalBabelParserPluginsList`
 A collection of parser names for babel parser. The plugin passes this list to babel parser so it can understand the syntaxes used in the file being formatted. The plugin uses prettier itself to figure out the parser it needs to use but if that fails, you can use this field to enforce the usage of the plugins babel needs.
@@ -64,7 +52,6 @@ module.exports = {
   "jsxBracketSameLine": true,
   "semi": true,
   "importOrder": ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
-  "importOrderSeparation": true,
   "experimentalBabelParserPluginsList" : ["jsx", "typescript"]
 }
 ```
@@ -141,9 +128,9 @@ SyntaxError: This experimental syntax requires enabling one of the following par
 ```
 To solve this issue, you can use the new option `experimentalBabelParserPluginsList` in your `.prettierrc` and pass an array of plugin names to be used.
 
-### Maintainers
+### Difference between this fork and the upstream package
+The upstream package collects every import lines, sort them according to the given order and rewrite the files with the sorted import statements at the top.
 
-|  [Ayush Sharma](https://github.com/ayusharma) | [Behrang Yarahmadi](https://github.com/byara)
-|---|---|
-| ![ayusharma](https://avatars2.githubusercontent.com/u/6918450?s=120&v=4) | ![@byara](https://avatars2.githubusercontent.com/u/6979966?s=120&v=4)
-| [@ayusharma_](https://twitter.com/ayusharma_) | [@behrang_y](https://twitter.com/behrang_y)
+While this strategy works well for most use cases, at Breathe Life we sometimes have other types of statements inserted between imports, which won't be preserved
+with the original strategy. This fork replaces the import statements line-by-line and supports `// prettier-ignore` comments for statements that need to be preserved
+between imports.
