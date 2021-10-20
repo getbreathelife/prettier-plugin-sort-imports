@@ -18,6 +18,6 @@ jobs:
       - run: yarn
       - run: |
           [[ "${{ github.event.release.prerelease }}" == "true" ]] && release_tag="next" || release_tag="latest"
-          yarn publish --tag "$release_tag" --access public
+          npm publish --tag "$release_tag" --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
