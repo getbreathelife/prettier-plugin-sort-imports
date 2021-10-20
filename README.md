@@ -1,4 +1,4 @@
-# @getbreathelife/prettier-plugin-sort-imports
+# @breathelife/prettier-plugin-sort-imports
 
 A prettier plugin to sort import declarations by provided RegEx order. Based on [`@trivago/prettier-plugin-sort-imports`](https://github.com/trivago/prettier-plugin-sort-imports)
 
@@ -7,13 +7,13 @@ A prettier plugin to sort import declarations by provided RegEx order. Based on 
 npm
 
 ```shell script
-npm install --save-dev @getbreathelife/prettier-plugin-sort-imports
+npm install --save-dev @breathelife/prettier-plugin-sort-imports
 ```
 
 or, using yarn
 
 ```shell script
-yarn add --dev @getbreathelife/prettier-plugin-sort-imports
+yarn add --dev @breathelife/prettier-plugin-sort-imports
 ```
 
 ### Usage
