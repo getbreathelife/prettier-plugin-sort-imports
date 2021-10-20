@@ -1,5 +1,5 @@
 {
-  "name": "@getbreathelife/prettier-plugin-sort-imports",
+  "name": "@breathelife/prettier-plugin-sort-imports",
   "version": "3.0.2",
   "description": "A prettier plugins to sort imports in provided RegEx order",
   "main": "lib/src/index.js",
@@ -14,9 +14,6 @@
     "test": "jest -i",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run compile && npm run test"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   },
   "keywords": [
     "prettier",
