@@ -9,4 +9,6 @@ export const jsx: ParserPlugin = 'jsx';
 export const newLineCharacters = '\n\n';
 export const newLineNode = 'PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE';
 
+export const importLineDenominator = 'PRETTIER_PLUGIN_SORT_IMPORTS_IMPORT_LINE';
+
 export const commentShield = '//PRETTIER_PLUGIN_SORT_IMPORTS_DUMMY_COMMENT '

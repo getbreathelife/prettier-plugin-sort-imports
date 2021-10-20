@@ -4,7 +4,7 @@ import { NodePath } from 'ast-types/lib/node-path';
 import { max } from 'lodash';
 import { Options, parse, print, visit } from 'recast';
 
-import { commentShield, newLineCharacters, newLineNode } from '../constants';
+import { commentShield, importLineDenominator, newLineCharacters, newLineNode } from '../constants';
 import { SortedNode } from '../types';
 import { shouldIgnoreNode } from './should-ignore-node';
 import { shieldSpecialLineInComment } from './shield-special-line-in-comment';
@@ -64,6 +64,8 @@ export const sortImports = (
                 node.loc = path.node.loc
                 path.replace(node);
 
+                path.insertAfter(importLineDenominator);
+
                 if (trailingNewLine || sortedNodeIndex >= nodes.length - 1) {
                     path.insertAfter(newLineNode);
                 }
@@ -99,7 +101,13 @@ export const sortImports = (
 
     return (
         updatedCode.replace(
-            /PRETTIER_PLUGIN_SORT_IMPORTS_NEW_LINE/gi,
+            new RegExp(`${lineTerminator}+${importLineDenominator}${lineTerminator}+`, 'gi'),
+            lineTerminator,
+        ).replace(
+            new RegExp(importLineDenominator, 'gi'),
+            '',
+        ).replace(
+            new RegExp(`${lineTerminator}*${newLineNode}${lineTerminator}*`, 'gi'),
             newLineCharacters,
         ).replace(
             commentShield,
