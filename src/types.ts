@@ -9,5 +9,6 @@ export type SortedNode<NodeType> = {
 export interface PrettierOptions extends RequiredOptions {
     importOrder: string[];
     importOrderSeparation: boolean;
+    strictGrouping: boolean;
     experimentalBabelParserPluginsList: ParserPlugin[];
 }

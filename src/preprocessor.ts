@@ -10,13 +10,13 @@ import { PrettierOptions } from './types';
 import { shouldIgnoreNode } from './utils/should-ignore-node';
 import { shieldSpecialLineInComment } from './utils/shield-special-line-in-comment';
 
-export function preprocessor(code: string, options: PrettierOptions) {
+export function preprocessor(code: string, prettierOptions: PrettierOptions) {
     const {
         importOrder,
         importOrderSeparation,
         parser: prettierParser,
         experimentalBabelParserPluginsList = [],
-    } = options;
+    } = prettierOptions;
 
     const importNodes: n.ImportDeclaration[] = [];
 
@@ -30,8 +30,8 @@ export function preprocessor(code: string, options: PrettierOptions) {
                 })
             }
         },
-        tabWidth: options.tabWidth,
-        useTabs: options.useTabs,
+        tabWidth: prettierOptions.tabWidth,
+        useTabs: prettierOptions.useTabs,
         lineTerminator: require("os").EOL || "\n",
     };
     const parser = (input: string): n.File => parse(input, parserOptions);
@@ -61,5 +61,5 @@ export function preprocessor(code: string, options: PrettierOptions) {
         importOrderSeparation,
     );
 
-    return sortImports(allImports, code, parserOptions);
+    return sortImports(allImports, code, parserOptions, prettierOptions);
 }

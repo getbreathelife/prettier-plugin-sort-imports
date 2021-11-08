@@ -5,7 +5,7 @@ import { max } from 'lodash';
 import { Options, parse, print, visit } from 'recast';
 
 import { commentShield, importLineDenominator, newLineCharacters, newLineNode } from '../constants';
-import { SortedNode } from '../types';
+import { PrettierOptions, SortedNode } from '../types';
 import { shouldIgnoreNode } from './should-ignore-node';
 import { shieldSpecialLineInComment } from './shield-special-line-in-comment';
 
@@ -18,6 +18,7 @@ export const sortImports = (
     nodes: SortedNode<n.ImportDeclaration>[],
     code: string,
     parserOptions: Options,
+    prettierOptions: PrettierOptions,
 ) => {
     if (nodes.length < 1) return code;
 
@@ -64,7 +65,9 @@ export const sortImports = (
                 node.loc = path.node.loc
                 path.replace(node);
 
-                path.insertAfter(importLineDenominator);
+                if (prettierOptions.strictGrouping) {
+                    path.insertAfter(importLineDenominator);
+                }
 
                 if (trailingNewLine || sortedNodeIndex >= nodes.length - 1) {
                     path.insertAfter(newLineNode);
@@ -97,16 +100,21 @@ export const sortImports = (
         }
     });
 
-    const { code: updatedCode } = print(ast, parserOptions);
-
-    return (
-        updatedCode.replace(
+    let { code: updatedCode } = print(ast, parserOptions);
+    
+    if (prettierOptions.strictGrouping) {
+        // Remove extra newlines after each import statement
+        updatedCode = updatedCode.replace(
             new RegExp(`${lineTerminator}+${importLineDenominator}${lineTerminator}+`, 'gi'),
             lineTerminator,
         ).replace(
             new RegExp(importLineDenominator, 'gi'),
             '',
-        ).replace(
+        );
+    }
+
+    return (
+        updatedCode.replace(
             new RegExp(`${lineTerminator}*${newLineNode}${lineTerminator}*`, 'gi'),
             newLineCharacters,
         ).replace(

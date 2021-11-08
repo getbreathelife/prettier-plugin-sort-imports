@@ -9,7 +9,16 @@ import z from "z";
 
 import abc from "@core/abc";
 
-import otherthing from "@core/otherthing"; // otherthing comment
+import {
+    otherthing,
+    otherthing2,
+    otherthing3,
+    otherthing4,
+    otherthing5,
+    otherthing6
+} from "@core/otherthing"; // otherthing comment
+
+import pqr from "@core/pqr";
 
 import something from "@server/something";
 
