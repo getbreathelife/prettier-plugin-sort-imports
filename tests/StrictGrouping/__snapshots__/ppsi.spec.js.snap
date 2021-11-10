@@ -2,20 +2,29 @@
 
 exports[`import-export-in-between.ts - typescript-verify: import-export-in-between.ts 1`] = `
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
+
 import sameLevelRelativePath from "./sameLevelRelativePath";
 import thirdParty from "third-party";
+
 export { random } from './random';
+
 import c from 'c';
+
 import oneLevelRelativePath from "../oneLevelRelativePath";
+
 import otherthing from "@core/otherthing";
 import a from 'a';
+
 import twoLevelRelativePath from "../../twoLevelRelativePath";
+
 import component from "@ui/hello";
+
 export default {
     title: 'hello',
 };
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 import something from "@server/something";
+
 import x from 'x';
 
 function add(a:number,b:number) {
@@ -118,16 +127,21 @@ exports[`imports-with-comments-on-top.ts - typescript-verify: imports-with-comme
 // I am second line of top level comment in this file.
 import z from 'z';
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
+
 import sameLevelRelativePath from "./sameLevelRelativePath";
 import thirdParty from "third-party";
+
 import oneLevelRelativePath from "../oneLevelRelativePath";
 import otherthing from "@core/otherthing";
 import abc from "@core/abc";
+
 import twoLevelRelativePath from "../../twoLevelRelativePath";
 import component from "@ui/hello";
+
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
 import something from "@server/something";
 import xyz from "@ui/xyz";
+
 import qwerty from "@server/qwerty";
 
 function add(a:number,b:number) {
@@ -164,24 +178,31 @@ exports[`imports-with-file-level-comments.ts - typescript-verify: imports-with-f
 //@ts-ignore
 // I am file top level comments
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
+
 // I am stick to sameLevelRelativePath
 import sameLevelRelativePath from "./sameLevelRelativePath";
+
 // I am stick to third party comment
 import thirdParty from "third-party";
 // leading comment
 import { 
     random // inner comment
 } from './random';
+
 // leading comment
 export { 
     random // inner comment
 } from './random';
 import c from 'c';
+
 import oneLevelRelativePath from "../oneLevelRelativePath";
 import otherthing from "@core/otherthing";
+
 import a from 'a';
+
 import twoLevelRelativePath from "../../twoLevelRelativePath";
 import component from "@ui/hello";
+
 export default {
     title: 'hello',
 };
@@ -241,12 +262,17 @@ function add(a: number, b: number) {
 exports[`imports-with-interpreter-directive.ts - typescript-verify: imports-with-interpreter-directive.ts 1`] = `
 #!/usr/bin/env node
 import otherthing from "@core/otherthing";
+
 import abc from "@core/abc";
+
 import twoLevelRelativePath from "../../twoLevelRelativePath";
 import component from "@ui/hello";
+
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
+
 import something from "@server/something";
 import xyz from "@ui/xyz";
+
 import qwerty from "@server/qwerty";
 
 function add(a:number,b:number) {
@@ -405,16 +431,12 @@ export class AppComponent {
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 import { Component } from "@angular/core";
-
 import { isEmpty } from "lodash-es";
-
 // third-party comment
 import thirdParty from "third-party";
-
 import z from "z";
 
 import abc from "@core/abc";
-
 import {
     otherthing,
     otherthing2,
@@ -423,25 +445,19 @@ import {
     otherthing5,
     otherthing6,
 } from "@core/otherthing"; // otherthing comment
-
 import pqr from "@core/pqr";
 
 import something from "@server/something";
 
 // @ui/hello comment
 import component from "@ui/hello";
-
 import xyz from "@ui/xyz";
 
 // fourLevelRelativePath comment
 import fourLevelRelativePath from "../../../../fourLevelRelativePath";
-
 import threeLevelRelativePath from "../../../threeLevelRelativePath";
-
 import twoLevelRelativePath from "../../twoLevelRelativePath";
-
 import oneLevelRelativePath from "../oneLevelRelativePath";
-
 import sameLevelRelativePath from "./sameLevelRelativePath";
 
 @Component({

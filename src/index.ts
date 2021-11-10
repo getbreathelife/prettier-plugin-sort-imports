@@ -15,7 +15,13 @@ const options = {
         type: 'boolean',
         category: 'Global',
         default: false,
-        description: 'Should imports be separated by new line ?',
+        description: 'Should imports be separated by new line?',
+    },
+    strictGrouping: {
+        type: 'boolean',
+        category: 'Global',
+        default: false,
+        description: 'Should blank lines between imports of the same group be removed?',
     },
     experimentalBabelParserPluginsList: {
         type: 'path',

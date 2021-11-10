@@ -42,7 +42,7 @@ import a from 'a';
 
     const formatted = sortImports(sortedNodes, code, {
         parser: require("recast/parsers/typescript")
-    });
+    }, {} as any);
 
     expect(format(formatted, { parser: 'typescript' })).toEqual(
         `// first comment

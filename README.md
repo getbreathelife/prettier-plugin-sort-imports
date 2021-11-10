@@ -40,6 +40,9 @@ uses [`new RegExp`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refe
 to evaluate regular expression. E.g. `node.source.value.match(new RegExp(val))` Here, `val` 
 is the string provided in import order.
 
+#### `strictGrouping`
+Removes blank lines between import statements of the same group. Defaults to `false`.
+
 #### `experimentalBabelParserPluginsList`
 A collection of parser names for babel parser. The plugin passes this list to babel parser so it can understand the syntaxes used in the file being formatted. The plugin uses prettier itself to figure out the parser it needs to use but if that fails, you can use this field to enforce the usage of the plugins babel needs.
 
@@ -52,6 +55,7 @@ module.exports = {
   "jsxBracketSameLine": true,
   "semi": true,
   "importOrder": ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
+  "strictGrouping": true,
   "experimentalBabelParserPluginsList" : ["jsx", "typescript"]
 }
 ```
